@@ -1,0 +1,406 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#080b14">
+<title>NXORA — Connect Beyond Limits</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --bg:#080b14; --panel:#111827; --panel2:#182235;
+  --accent:#a855f7; --cyan:#22d3ee; --text:#f8fafc;
+  --muted:#94a3b8; --border:#273449;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);
+font-family:Arial,sans-serif}
+button,input{font:inherit}
+button{cursor:pointer}
+header{height:68px;padding:0 20px;display:flex;align-items:center;
+justify-content:space-between;border-bottom:1px solid var(--border);
+position:sticky;top:0;background:#080b14;z-index:5}
+.logo{font-size:25px;font-weight:900;letter-spacing:3px;
+background:linear-gradient(90deg,#a855f7,#22d3ee);
+-webkit-background-clip:text;color:transparent}
+.tag{font-size:10px;color:var(--muted);letter-spacing:2px}
+.container{max-width:1100px;margin:auto;padding:22px}
+.hero{padding:30px 0 24px}
+.hero h1{font-size:clamp(32px,7vw,58px);margin:0 0 10px}
+.hero h1 span{color:var(--cyan)}
+.hero p{color:var(--muted);line-height:1.6}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:15px}
+.card{background:linear-gradient(145deg,var(--panel),#0e1421);
+border:1px solid var(--border);border-radius:18px;padding:20px}
+.card h3{margin-top:0}
+.card p{color:var(--muted);line-height:1.5}
+.feature{font-size:34px;margin-bottom:12px}
+.btn{background:linear-gradient(90deg,#9333ea,#6d28d9);
+border:0;border-radius:10px;color:white;padding:12px 17px;font-weight:bold}
+.btn.secondary{background:var(--panel2);border:1px solid var(--border)}
+.btn:disabled{opacity:.5}
+input{width:100%;padding:13px;margin:7px 0 13px;
+border:1px solid var(--border);border-radius:10px;
+background:#080f1d;color:white;outline:none}
+input:focus{border-color:var(--cyan)}
+.auth{max-width:430px;margin:35px auto}
+.auth h2{margin-top:0}
+.hidden{display:none!important}
+nav{display:flex;gap:9px;flex-wrap:wrap;margin:20px 0}
+nav button{background:var(--panel);color:white;border:1px solid var(--border);
+padding:10px 14px;border-radius:9px}
+nav button.active{border-color:var(--cyan);color:var(--cyan)}
+.status{color:var(--muted);font-size:13px;margin-top:12px}
+.userrow{display:flex;align-items:center;gap:12px;padding:12px 0;
+border-bottom:1px solid var(--border)}
+.avatar{width:42px;height:42px;border-radius:50%;background:#31204e;
+display:grid;place-items:center;font-weight:bold;color:#e9d5ff}
+footer{text-align:center;padding:35px 15px;color:var(--muted);font-size:12px}
+#message{color:var(--cyan);font-size:13px;line-height:1.5}
+@media(max-width:500px){.container{padding:16px}.hero{padding-top:22px}}
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo">NXORA</div>
+    <div class="tag">CONNECT BEYOND LIMITS</div>
+  </div>
+  <button id="headerAuth" class="btn secondary" onclick="showAuth()">Login</button>
+</header>
+
+<main class="container">
+  <section id="home">
+    <div class="hero">
+      <div class="tag">CONNECT. COMMUNICATE. CREATE.</div>
+      <h1>MORE THAN A <span>PLATFORM.</span></h1>
+      <p>Connect with friends, discover gaming communities,
+      compete, create and explore a new digital world.</p>
+      <button class="btn" onclick="showAuth()">JOIN NXORA</button>
+    </div>
+
+    <div class="grid">
+      <div class="card"><div class="feature">🎮</div>
+        <h3>Gaming Hub</h3>
+        <p>Build your gaming identity and connect with other players.</p>
+      </div>
+      <div class="card"><div class="feature">🏆</div>
+        <h3>Tournament Centre</h3>
+        <p>Discover competitive events and tournament opportunities.</p>
+      </div>
+      <div class="card"><div class="feature">💬</div>
+        <h3>Community</h3>
+        <p>Meet people, make friends and build communities.</p>
+      </div>
+      <div class="card"><div class="feature">📡</div>
+        <h3>FF INTEL</h3>
+        <p>A home for gaming updates, news and discoveries.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="auth" class="card auth hidden">
+    <h2 id="authTitle">Welcome to NXORA</h2>
+    <p id="authDescription">Sign in to continue.</p>
+
+    <div id="signupFields" class="hidden">
+      <label>Username</label>
+      <input id="username" placeholder="Choose a username" maxlength="24">
+      <label>Full name</label>
+      <input id="fullname" placeholder="Your display name">
+    </div>
+
+    <label>Email address</label>
+    <input id="email" type="email" placeholder="you@example.com">
+    <label>Password</label>
+    <input id="password" type="password" placeholder="Enter password">
+
+    <button id="authButton" class="btn" style="width:100%" onclick="submitAuth()">Login</button>
+    <p id="message"></p>
+    <p class="status">
+      <span id="switchText">New to NXORA?</span>
+      <button class="btn secondary" onclick="toggleAuth()" id="switchButton">Create account</button>
+    </p>
+    <button class="btn secondary" onclick="showHome()">Back</button>
+  </section>
+
+  <section id="dashboard" class="hidden">
+    <div class="hero">
+      <div class="tag">YOUR NXORA SPACE</div>
+      <h1>WELCOME, <span id="welcomeName">PLAYER</span></h1>
+      <p>Your journey starts here.</p>
+    </div>
+
+    <nav>
+      <button class="active" onclick="showTab('overview',this)">Home</button>
+      <button onclick="showTab('profile',this)">Profile</button>
+      <button onclick="showTab('friends',this)">Friends</button>
+      <button onclick="showTab('messages',this)">Messages</button>
+    </nav>
+
+    <div id="overview" class="grid">
+      <div class="card"><div class="feature">👤</div>
+        <h3>Your Profile</h3><p>Manage your identity on NXORA.</p>
+        <button class="btn secondary" onclick="showTabById('profile')">Open profile</button>
+      </div>
+      <div class="card"><div class="feature">🤝</div>
+        <h3>Friends</h3><p>Discover and connect with players.</p>
+        <button class="btn secondary" onclick="showTabById('friends')">Find friends</button>
+      </div>
+      <div class="card"><div class="feature">✉️</div>
+        <h3>Messages</h3><p>Continue your conversations.</p>
+        <button class="btn secondary" onclick="showTabById('messages')">Open messages</button>
+      </div>
+    </div>
+
+    <div id="profile" class="card hidden">
+      <h2>Your Profile</h2>
+      <p id="profileEmail" class="status"></p>
+      <label>Username</label>
+      <input id="profileUsername" maxlength="24">
+      <label>Full name</label>
+      <input id="profileFullname">
+      <label>About you</label>
+      <input id="profileBio" maxlength="160" placeholder="Tell people about yourself">
+      <button class="btn" onclick="saveProfile()">Save profile</button>
+      <p id="profileMessage" class="status"></p>
+    </div>
+
+    <div id="friends" class="card hidden">
+      <h2>Discover Players</h2>
+      <input id="playerSearch" placeholder="Search by username"
+        oninput="searchPlayers()">
+      <div id="playerResults" class="status">Search for players to connect.</div>
+    </div>
+
+    <div id="messages" class="card hidden">
+      <h2>Messages</h2>
+      <p class="status">Your conversations will appear here.</p>
+      <div id="conversationList"></div>
+      <div id="chatArea" class="hidden">
+        <h3 id="chatTitle">Conversation</h3>
+        <div id="chatMessages"></div>
+        <input id="chatInput" placeholder="Write a message">
+        <button class="btn" onclick="sendMessage()">Send</button>
+      </div>
+    </div>
+
+    <button class="btn secondary" style="margin-top:20px" onclick="logout()">Log out</button>
+  </section>
+</main>
+
+<footer>NXORA © 2026 · CONNECT. COMMUNICATE. CREATE.</footer>
+
+<script>
+/* Add your Supabase project details below.
+   Use the project URL and anon/publishable key only.
+   NEVER put your service_role key here. */
+const SUPABASE_URL = "YOUR_SUPABASE_PROJECT_URL";
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_OR_PUBLISHABLE_KEY";
+
+let db = null;
+let currentUser = null;
+let currentProfile = null;
+let signupMode = false;
+let activeConversation = null;
+
+function el(id){return document.getElementById(id)}
+function setMessage(id,text){el(id).textContent=text}
+
+function init(){
+  if(!SUPABASE_URL.startsWith("https://") ||
+     SUPABASE_ANON_KEY.startsWith("YOUR_")){
+    setMessage("message","Add your Supabase URL and anon/publishable key in the code first.");
+    return;
+  }
+  db = window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+  db.auth.onAuthStateChange((_event,session)=>{
+    setTimeout(()=>handleSession(session),0);
+  });
+  db.auth.getSession().then(({data})=>handleSession(data.session));
+}
+
+function hideAll(){
+  ["home","auth","dashboard"].forEach(id=>el(id).classList.add("hidden"));
+}
+function showHome(){hideAll();el("home").classList.remove("hidden")}
+function showAuth(){
+  hideAll();el("auth").classList.remove("hidden");
+  if(!db)setMessage("message","Supabase setup is needed before you can sign in.");
+}
+function toggleAuth(){
+  signupMode=!signupMode;
+  el("signupFields").classList.toggle("hidden",!signupMode);
+  el("authTitle").textContent=signupMode?"Create your NXORA account":"Welcome to NXORA";
+  el("authDescription").textContent=signupMode?"Join the community.":"Sign in to continue.";
+  el("authButton").textContent=signupMode?"Create account":"Login";
+  el("switchText").textContent=signupMode?"Already registered?":"New to NXORA?";
+  el("switchButton").textContent=signupMode?"Login":"Create account";
+  setMessage("message","");
+}
+async function submitAuth(){
+  if(!db){setMessage("message","Supabase is not configured yet.");return}
+  const email=el("email").value.trim();
+  const password=el("password").value;
+  if(!email||!password){setMessage("message","Enter your email and password.");return}
+  el("authButton").disabled=true;
+  try{
+    if(signupMode){
+      const username=el("username").value.trim().toLowerCase();
+      const full_name=el("fullname").value.trim();
+      if(!username){setMessage("message","Choose a username.");return}
+      const {data,error}=await db.auth.signUp({
+        email,password,
+        options:{data:{username,full_name}}
+      });
+      if(error)throw error;
+      if(data.session) await handleSession(data.session);
+      else setMessage("message","Account created. Check your email to verify your account, then log in.");
+    }else{
+      const {data,error}=await db.auth.signInWithPassword({email,password});
+      if(error)throw error;
+      await handleSession(data.session);
+    }
+  }catch(e){setMessage("message",e.message)}
+  finally{el("authButton").disabled=false}
+}
+async function handleSession(session){
+  if(!session){
+    currentUser=null;
+    el("headerAuth").textContent="Login";
+    if(!el("auth").classList.contains("hidden"))return;
+    showHome();return;
+  }
+  currentUser=session.user;
+  el("headerAuth").textContent="Account";
+  await loadProfile();
+  hideAll();el("dashboard").classList.remove("hidden");
+}
+async function loadProfile(){
+  if(!currentUser)return;
+  el("profileEmail").textContent=currentUser.email||"";
+  const {data,error}=await db.from("profiles")
+    .select("id,username,full_name,avatar_url,bio")
+    .eq("id",currentUser.id).maybeSingle();
+  if(error){console.error(error);return}
+  currentProfile=data;
+  const name=data?.full_name||data?.username||"PLAYER";
+  el("welcomeName").textContent=name.toUpperCase();
+  el("profileUsername").value=data?.username||"";
+  el("profileFullname").value=data?.full_name||"";
+  el("profileBio").value=data?.bio||"";
+}
+async function saveProfile(){
+  const username=el("profileUsername").value.trim().toLowerCase();
+  const full_name=el("profileFullname").value.trim();
+  const bio=el("profileBio").value.trim();
+  if(!username){setMessage("profileMessage","Username is required.");return}
+  const {error}=await db.from("profiles").upsert({
+    id:currentUser.id,username,full_name,bio
+  },{onConflict:"id"});
+  if(error){setMessage("profileMessage",error.message);return}
+  setMessage("profileMessage","Profile saved.");
+  await loadProfile();
+}
+async function searchPlayers(){
+  const q=el("playerSearch").value.trim();
+  if(q.length<2){el("playerResults").textContent="Type at least two characters.";return}
+  const {data,error}=await db.from("profiles")
+    .select("id,username,full_name,bio")
+    .ilike("username","%"+q+"%")
+    .neq("id",currentUser.id).limit(15);
+  if(error){el("playerResults").textContent=error.message;return}
+  el("playerResults").innerHTML="";
+  if(!data.length){el("playerResults").textContent="No players found.";return}
+  data.forEach(p=>{
+    const row=document.createElement("div");
+    row.className="userrow";
+    const info=document.createElement("div");
+    const title=document.createElement("strong");
+    title.textContent=p.full_name||p.username||"NXORA player";
+    const sub=document.createElement("div");
+    sub.className="status";sub.textContent="@"+(p.username||"player");
+    info.append(title,sub);
+    const btn=document.createElement("button");
+    btn.className="btn secondary";btn.textContent="Add friend";
+    btn.onclick=()=>sendFriendRequest(p.id,btn);
+    row.append(info,btn);el("playerResults").append(row);
+  });
+}
+async function sendFriendRequest(id,button){
+  button.disabled=true;
+  const {error}=await db.from("friend_requests").insert({
+    sender_id:currentUser.id,receiver_id:id,status:"pending"
+  });
+  button.textContent=error?"Try again":"Request sent";
+  if(error){button.disabled=false;console.error(error)}
+}
+async function loadConversations(){
+  const {data,error}=await db.from("conversation_members")
+    .select("conversation_id,conversations(id,name,is_group)")
+    .eq("user_id",currentUser.id);
+  const box=el("conversationList");box.innerHTML="";
+  if(error){box.textContent=error.message;return}
+  if(!data?.length){box.textContent="No conversations yet.";return}
+  data.forEach(item=>{
+    const conv=item.conversations;
+    if(!conv)return;
+    const btn=document.createElement("button");
+    btn.className="btn secondary";btn.style.margin="5px";
+    btn.textContent=conv.name||"Private conversation";
+    btn.onclick=()=>openConversation(conv.id,conv.name||"Conversation");
+    box.append(btn);
+  });
+}
+async function openConversation(id,name){
+  activeConversation=id;
+  el("chatTitle").textContent=name;
+  el("chatArea").classList.remove("hidden");
+  await loadMessages();
+}
+async function loadMessages(){
+  const {data,error}=await db.from("messages")
+    .select("id,sender_id,content,created_at")
+    .eq("conversation_id",activeConversation)
+    .is("deleted_at",null).order("created_at",{ascending:true}).limit(100);
+  const box=el("chatMessages");box.innerHTML="";
+  if(error){box.textContent=error.message;return}
+  (data||[]).forEach(m=>{
+    const p=document.createElement("p");
+    p.textContent=(m.sender_id===currentUser.id?"You: ":"Member: ")+m.content;
+    box.append(p);
+  });
+}
+async function sendMessage(){
+  const content=el("chatInput").value.trim();
+  if(!content||!activeConversation)return;
+  const {error}=await db.from("messages").insert({
+    conversation_id:activeConversation,sender_id:currentUser.id,content
+  });
+  if(error){alert(error.message);return}
+  el("chatInput").value="";
+  await loadMessages();
+}
+function showTab(id,button){
+  ["overview","profile","friends","messages"].forEach(x=>el(x).classList.add("hidden"));
+  el(id).classList.remove("hidden");
+  document.querySelectorAll("nav button").forEach(b=>b.classList.remove("active"));
+  if(button)button.classList.add("active");
+  if(id==="messages")loadConversations();
+}
+function showTabById(id){
+  const buttons=[...document.querySelectorAll("nav button")];
+  const index={overview:0,profile:1,friends:2,messages:3}[id];
+  showTab(id,buttons[index]);
+}
+async function logout(){
+  if(db)await db.auth.signOut();
+  currentUser=null;showHome();
+}
+init();
+</script>
+</body>
+      </html>
+      
